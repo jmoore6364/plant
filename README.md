@@ -29,12 +29,21 @@ An intelligent DevOps automation tool that analyzes system logs and metrics, dia
 - **Alerting**: Configurable alerts for critical issues
 - **Documentation**: Comprehensive guides and API docs
 
-### Alerting & Notifications ⚡ NEW
+### Alerting & Notifications ⚡
 - **Multi-Channel**: Slack, Discord, Email, PagerDuty
 - **Smart Rules**: Configurable thresholds and conditions
 - **Deduplication**: Prevents alert spam
 - **Priority Levels**: LOW, MEDIUM, HIGH, CRITICAL
 - **Alert Grouping**: Groups related alerts together
+
+### Database & Historical Tracking 🗄️ NEW
+- **Persistent Storage**: SQLite/PostgreSQL support
+- **Historical Analytics**: Trend analysis and predictions
+- **MTTR Tracking**: Mean Time To Resolution metrics
+- **Recurring Issue Detection**: Identify repeating problems
+- **System Health Scores**: Overall health tracking (0-100)
+- **Data Retention**: Automated cleanup and archiving
+- **Export Capabilities**: JSON export for reporting
 
 ## Architecture
 
@@ -43,6 +52,7 @@ src/
 ├── analyzers/          # Log and metric analysis
 ├── ai/                 # LLM integration and AI reasoning
 ├── collectors/         # Data collection modules
+├── database/          # Historical tracking and analytics
 ├── fixers/            # Fix generation and application
 ├── github_integration/ # GitHub PR automation
 ├── models/            # ML models for anomaly detection
@@ -141,7 +151,34 @@ results = asyncio.run(manager.send_alert(alert))
 print(f"Sent to {len(results)} channels")
 ```
 
-For detailed notification setup, see [Notification Guide](docs/NOTIFICATIONS.md)
+### Query Historical Data
+```python
+from src.database.connection import get_db_session
+from src.database.repository import AlertRepository
+from src.database.analytics import AnalyticsEngine
+
+async with get_db_session() as db:
+    # Get alert history
+    alert_repo = AlertRepository(db)
+    recent_alerts = await alert_repo.get_recent(limit=100, hours=24)
+
+    # Get system health score
+    engine = AnalyticsEngine(db)
+    health = await engine.get_system_health_score()
+    print(f"System health: {health['overall_score']}/100")
+
+    # Analyze trends
+    cpu_trend = await engine.get_trend_analysis("cpu", hours=24)
+    print(f"CPU trend: {cpu_trend['trend_direction']}")
+
+    # Track MTTR
+    mttr = await engine.get_mttr_analysis(hours=168)
+    print(f"MTTR: {mttr['overall_mttr_minutes']} minutes")
+```
+
+For detailed guides, see:
+- [Notification Guide](docs/NOTIFICATIONS.md)
+- [Database Guide](docs/DATABASE.md)
 
 ## Development
 

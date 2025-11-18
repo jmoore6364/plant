@@ -23,13 +23,18 @@ from src.fixers.auto_fixer import AutoFixer
 from src.github_integration.pr_creator import PRCreator
 from src.notifications.setup import get_notification_manager
 from src.notifications.base import Alert, NotificationPriority
+from src.api.database_routes import router as database_router
+from src.database.connection import init_db
 
 
 app = FastAPI(
     title="Plant - AI System Health Analyzer",
     description="AI-powered system health analysis and automated fixing",
-    version="0.1.0",
+    version="0.2.0",
 )
+
+# Include database routes
+app.include_router(database_router)
 
 # CORS middleware
 app.add_middleware(
@@ -405,6 +410,9 @@ async def process_metrics_with_notifications():
 @app.on_event("startup")
 async def startup_event():
     """Start background tasks on startup."""
+    # Initialize database
+    await init_db()
+
     if settings.notifications_enabled:
         # Start background monitoring (optional - can be disabled)
         # import asyncio
