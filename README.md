@@ -29,6 +29,13 @@ An intelligent DevOps automation tool that analyzes system logs and metrics, dia
 - **Alerting**: Configurable alerts for critical issues
 - **Documentation**: Comprehensive guides and API docs
 
+### Alerting & Notifications ⚡ NEW
+- **Multi-Channel**: Slack, Discord, Email, PagerDuty
+- **Smart Rules**: Configurable thresholds and conditions
+- **Deduplication**: Prevents alert spam
+- **Priority Levels**: LOW, MEDIUM, HIGH, CRITICAL
+- **Alert Grouping**: Groups related alerts together
+
 ## Architecture
 
 ```
@@ -39,6 +46,7 @@ src/
 ├── fixers/            # Fix generation and application
 ├── github_integration/ # GitHub PR automation
 ├── models/            # ML models for anomaly detection
+├── notifications/     # Multi-channel alerting system
 ├── api/               # FastAPI REST API
 └── ui/                # React dashboard
 ```
@@ -110,6 +118,30 @@ if issue.fix_generated:
     pr_url = fixer.create_pr(issue)
     print(f"PR created: {pr_url}")
 ```
+
+### Send Alerts to Slack/Discord/Email
+```python
+from src.notifications.setup import get_notification_manager
+from src.notifications.base import Alert, NotificationPriority
+
+manager = get_notification_manager()
+
+alert = Alert(
+    id="alert_001",
+    title="High CPU Usage Detected",
+    message="CPU usage at 95% on prod-server-01",
+    priority=NotificationPriority.HIGH,
+    source="metrics",
+    tags=["performance", "cpu"],
+)
+
+# Send to all configured channels
+import asyncio
+results = asyncio.run(manager.send_alert(alert))
+print(f"Sent to {len(results)} channels")
+```
+
+For detailed notification setup, see [Notification Guide](docs/NOTIFICATIONS.md)
 
 ## Development
 

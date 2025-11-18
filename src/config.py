@@ -41,6 +41,32 @@ class Settings(BaseSettings):
     auto_pr_enabled: bool = Field(default=False, env="AUTO_PR_ENABLED")
     require_approval: bool = Field(default=True, env="REQUIRE_APPROVAL")
 
+    # Notification Settings
+    notifications_enabled: bool = Field(default=True, env="NOTIFICATIONS_ENABLED")
+
+    # Slack
+    slack_webhook_url: Optional[str] = Field(default=None, env="SLACK_WEBHOOK_URL")
+    slack_api_token: Optional[str] = Field(default=None, env="SLACK_API_TOKEN")
+    slack_channel: Optional[str] = Field(default=None, env="SLACK_CHANNEL")
+
+    # Discord
+    discord_webhook_url: Optional[str] = Field(default=None, env="DISCORD_WEBHOOK_URL")
+
+    # Email
+    smtp_host: Optional[str] = Field(default=None, env="SMTP_HOST")
+    smtp_port: int = Field(default=587, env="SMTP_PORT")
+    smtp_user: Optional[str] = Field(default=None, env="SMTP_USER")
+    smtp_password: Optional[str] = Field(default=None, env="SMTP_PASSWORD")
+    smtp_from_email: Optional[str] = Field(default=None, env="SMTP_FROM_EMAIL")
+    smtp_to_emails: Optional[str] = Field(default=None, env="SMTP_TO_EMAILS")  # Comma-separated
+
+    # PagerDuty
+    pagerduty_integration_key: Optional[str] = Field(default=None, env="PAGERDUTY_INTEGRATION_KEY")
+
+    # Alert Settings
+    alert_dedup_window_minutes: int = Field(default=15, env="ALERT_DEDUP_WINDOW_MINUTES")
+    alert_cooldown_minutes: int = Field(default=15, env="ALERT_COOLDOWN_MINUTES")
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
