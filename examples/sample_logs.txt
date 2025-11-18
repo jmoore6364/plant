@@ -1,0 +1,15 @@
+2024-01-15 10:30:45 ERROR Failed to connect to database: Connection refused
+2024-01-15 10:30:46 INFO Retrying database connection...
+2024-01-15 10:30:47 ERROR Connection timeout after 30 seconds
+2024-01-15 10:30:48 WARNING Memory usage at 85%
+2024-01-15 10:30:50 CRITICAL Out of memory: Cannot allocate 512MB
+2024-01-15 10:30:51 ERROR Application crashed with exit code 137
+2024-01-15 10:31:00 INFO Application restarted
+2024-01-15 10:31:01 WARNING High CPU usage detected: 95%
+2024-01-15 10:31:05 ERROR Uncaught exception in request handler: NullPointerException
+2024-01-15 10:31:10 ERROR Database query timeout: SELECT * FROM users took 45s
+2024-01-15 10:31:15 INFO User login successful: user@example.com
+2024-01-15 10:31:20 ERROR Failed to write to disk: Permission denied
+2024-01-15 10:31:25 WARNING Disk usage at 92%
+2024-01-15 10:31:30 ERROR Too many open connections: 1000/1000
+2024-01-15 10:31:35 CRITICAL System is unresponsive
