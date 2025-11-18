@@ -1,0 +1,133 @@
+# Example TOML configuration for System Health Analyzer
+
+[default]
+environment = "development"
+debug = true
+
+[default.database]
+url = "sqlite+aiosqlite:///./data/system_health.db"
+pool_size = 10
+max_overflow = 20
+pool_timeout = 30
+echo = false
+
+[default.ai]
+provider = "anthropic"
+anthropic_api_key = "${secret:ai/anthropic_api_key}"
+model = "claude-3-sonnet-20240229"
+max_tokens = 4096
+temperature = 0.7
+timeout = 120
+
+[default.api]
+host = "0.0.0.0"
+port = 8000
+workers = 4
+reload = true
+cors_origins = ["*"]
+request_timeout = 300
+
+[default.logging]
+level = "INFO"
+format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+file = "logs/app.log"
+max_bytes = 10485760
+backup_count = 5
+
+[default.notifications.slack]
+enabled = true
+webhook_url = "${secret:notifications/slack/webhook_url}"
+channel = "#alerts"
+username = "System Health Bot"
+
+[default.notifications.discord]
+enabled = false
+
+[default.notifications.email]
+enabled = false
+smtp_port = 587
+use_tls = true
+
+[default.notifications.pagerduty]
+enabled = false
+
+[default.notifications]
+deduplication_window_minutes = 30
+
+[default.github]
+token = "${secret:github/token}"
+default_branch = "main"
+create_prs = true
+auto_merge = false
+
+[default.cache]
+enabled = true
+redis_url = "redis://localhost:6379/0"
+ttl_seconds = 300
+max_connections = 10
+
+[default.security]
+jwt_secret_key = "${secret:security/jwt_secret_key}"
+jwt_algorithm = "HS256"
+jwt_expiration_minutes = 1440
+api_keys_enabled = true
+rate_limit_enabled = true
+rate_limit_requests = 100
+rate_limit_period_seconds = 60
+cors_enabled = true
+allowed_hosts = ["*"]
+
+[default.monitoring]
+metrics_enabled = true
+prometheus_enabled = false
+prometheus_port = 9090
+tracing_enabled = false
+
+[default.retention]
+metrics_days = 30
+alerts_days = 90
+diagnoses_days = 180
+fixes_days = 180
+prs_days = 365
+auto_cleanup_enabled = true
+cleanup_schedule_cron = "0 2 * * *"
+
+[default.feature_flags]
+ai_analysis = true
+auto_fix = false
+auto_pr = false
+notifications = true
+database = true
+cache = true
+monitoring = false
+
+# Production environment configuration
+[production]
+environment = "production"
+debug = false
+
+[production.database]
+url = "${secret:database/production_url}"
+pool_size = 50
+max_overflow = 100
+echo = false
+
+[production.api]
+workers = 16
+reload = false
+cors_origins = ["https://app.example.com"]
+
+[production.logging]
+level = "WARNING"
+file = "/var/log/system-health/app.log"
+
+[production.security]
+jwt_secret_key = "${secret:security/production_jwt_secret}"
+rate_limit_requests = 500
+allowed_hosts = ["app.example.com"]
+
+[production.feature_flags]
+ai_analysis = true
+auto_fix = true
+auto_pr = true
+monitoring = true
