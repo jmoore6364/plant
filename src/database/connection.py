@@ -11,8 +11,8 @@ from src.database.models import Base
 
 # Create async engine
 engine = create_async_engine(
-    settings.database_url,
-    echo=settings.log_level == "DEBUG",
+    settings.database.url,
+    echo=settings.logging.level == "DEBUG",
     future=True,
 )
 

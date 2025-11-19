@@ -18,52 +18,52 @@ def create_notification_manager() -> NotificationManager:
     """
     manager = NotificationManager()
 
-    if not settings.notifications_enabled:
+    # Check if notifications feature is enabled
+    if not settings.feature_flags.notifications:
         return manager
 
     # Setup Slack
-    if settings.slack_webhook_url or settings.slack_api_token:
+    if settings.notifications.slack.enabled:
         try:
             slack = SlackNotifier(
-                webhook_url=settings.slack_webhook_url,
-                api_token=settings.slack_api_token,
-                channel=settings.slack_channel,
+                webhook_url=settings.notifications.slack.webhook_url or "",
+                api_token=settings.notifications.slack.token or "",
+                channel=settings.notifications.slack.channel or "#alerts",
             )
             manager.add_channel(slack)
         except Exception as e:
             print(f"Warning: Failed to initialize Slack notifier: {e}")
 
     # Setup Discord
-    if settings.discord_webhook_url:
+    if settings.notifications.discord.enabled:
         try:
             discord = DiscordNotifier(
-                webhook_url=settings.discord_webhook_url,
+                webhook_url=settings.notifications.discord.webhook_url or "",
             )
             manager.add_channel(discord)
         except Exception as e:
             print(f"Warning: Failed to initialize Discord notifier: {e}")
 
     # Setup Email
-    if settings.smtp_host and settings.smtp_to_emails:
+    if settings.notifications.email.enabled:
         try:
-            to_emails = [email.strip() for email in settings.smtp_to_emails.split(",")]
             email = EmailNotifier(
-                smtp_host=settings.smtp_host,
-                smtp_port=settings.smtp_port,
-                smtp_user=settings.smtp_user or "",
-                smtp_password=settings.smtp_password or "",
-                from_email=settings.smtp_from_email or settings.smtp_user or "",
-                to_emails=to_emails,
+                smtp_host=settings.notifications.email.smtp_host,
+                smtp_port=settings.notifications.email.smtp_port,
+                smtp_user=settings.notifications.email.smtp_user or "",
+                smtp_password=settings.notifications.email.smtp_password or "",
+                from_email=settings.notifications.email.from_address,
+                to_emails=settings.notifications.email.to_addresses,
             )
             manager.add_channel(email)
         except Exception as e:
             print(f"Warning: Failed to initialize Email notifier: {e}")
 
     # Setup PagerDuty
-    if settings.pagerduty_integration_key:
+    if settings.notifications.pagerduty.enabled:
         try:
             pagerduty = PagerDutyNotifier(
-                integration_key=settings.pagerduty_integration_key,
+                integration_key=settings.notifications.pagerduty.integration_key or "",
             )
             manager.add_channel(pagerduty)
         except Exception as e:

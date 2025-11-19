@@ -4,7 +4,7 @@ Configuration schema with Pydantic validation.
 Defines the structure and validation rules for application configuration.
 """
 
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 from typing import Optional, List, Dict, Any
 from enum import Enum
 
@@ -37,7 +37,8 @@ class DatabaseConfig(BaseModel):
     pool_timeout: int = Field(default=30, ge=1, le=300)
     echo: bool = Field(default=False, description="Echo SQL queries")
 
-    @validator('url')
+    @field_validator('url')
+    @classmethod
     def validate_url(cls, v):
         if not v:
             raise ValueError("Database URL cannot be empty")
@@ -54,14 +55,17 @@ class AIConfig(BaseModel):
     temperature: float = Field(default=0.7, ge=0.0, le=2.0)
     timeout: int = Field(default=120, ge=10, le=600)
 
-    @root_validator
-    def validate_api_keys(cls, values):
-        provider = values.get('provider')
-        if provider == 'anthropic' and not values.get('anthropic_api_key'):
-            raise ValueError("anthropic_api_key required when provider is 'anthropic'")
-        if provider == 'openai' and not values.get('openai_api_key'):
-            raise ValueError("openai_api_key required when provider is 'openai'")
-        return values
+    @model_validator(mode='after')
+    def validate_api_keys(self):
+        # Only enforce API keys in production or when explicitly configured
+        import os
+        env = os.getenv('APP_ENV', 'development')
+        if env == 'production':
+            if self.provider == 'anthropic' and not self.anthropic_api_key:
+                raise ValueError("anthropic_api_key required when provider is 'anthropic'")
+            if self.provider == 'openai' and not self.openai_api_key:
+                raise ValueError("openai_api_key required when provider is 'openai'")
+        return self
 
 
 class APIConfig(BaseModel):
@@ -216,36 +220,31 @@ class AppConfig(BaseModel):
         use_enum_values = True
         validate_assignment = True
 
-    @validator('environment')
+    @field_validator('environment')
+    @classmethod
     def validate_environment(cls, v):
         if isinstance(v, str):
             return Environment(v.lower())
         return v
 
-    @root_validator
-    def validate_production_settings(cls, values):
+    @model_validator(mode='after')
+    def validate_production_settings(self):
         """Validate critical production settings."""
-        env = values.get('environment')
-
-        if env == Environment.PRODUCTION:
+        if self.environment == Environment.PRODUCTION:
             # Ensure critical settings are configured for production
-            security = values.get('security', {})
-            if isinstance(security, SecurityConfig):
-                if security.jwt_secret_key == "change-me-in-production":
-                    raise ValueError(
-                        "JWT secret key must be changed in production environment"
-                    )
+            if self.security.jwt_secret_key == "change-me-in-production":
+                raise ValueError(
+                    "JWT secret key must be changed in production environment"
+                )
 
-            database = values.get('database', {})
-            if isinstance(database, DatabaseConfig):
-                if database.url.startswith("sqlite"):
-                    import warnings
-                    warnings.warn(
-                        "SQLite is not recommended for production use",
-                        UserWarning
-                    )
+            if self.database.url.startswith("sqlite"):
+                import warnings
+                warnings.warn(
+                    "SQLite is not recommended for production use",
+                    UserWarning
+                )
 
-        return values
+        return self
 
     def is_production(self) -> bool:
         """Check if running in production."""

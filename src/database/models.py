@@ -97,7 +97,7 @@ class AlertHistory(Base):
 
     # Classification
     tags = Column(JSON)  # List of tags
-    metadata = Column(JSON)  # Additional metadata
+    extra_metadata = Column(JSON)  # Additional metadata
 
     # Status tracking
     resolved = Column(Boolean, default=False, index=True)
