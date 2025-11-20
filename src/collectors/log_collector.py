@@ -95,6 +95,7 @@ class LogCollector:
             if entry:
                 entries.append(entry)
 
+        self.entries.extend(entries)
         return entries
 
     def _parse_line(
