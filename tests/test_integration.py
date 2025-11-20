@@ -13,12 +13,13 @@ import tempfile
 import json
 from unittest.mock import Mock, patch, AsyncMock
 
-from src.core.log_parser import LogParser
-from src.core.metrics_collector import MetricsCollector
-from src.core.anomaly_detector import AnomalyDetector
-from src.ai.analyzer import AIAnalyzer
-from src.ai.fix_generator import FixGenerator
-from src.github.pr_creator import PRCreator
+from src.collectors.log_collector import LogCollector
+from src.collectors.metrics_collector import MetricsCollector
+from src.analyzers.anomaly_detector import AnomalyDetector
+from src.analyzers.log_analyzer import LogAnalyzer
+from src.ai.llm_client import LLMClient
+from src.fixers.auto_fixer import AutoFixer
+from src.github_integration.pr_creator import PRCreator
 from src.notifications.manager import NotificationManager
 from src.notifications.base import Alert, NotificationPriority
 from src.database.connection import get_db_session, init_db
@@ -61,7 +62,7 @@ async def test_full_analysis_pipeline():
 
     try:
         # Step 1: Parse logs
-        parser = LogParser()
+        parser = LogCollector()
         entries = parser.parse_file(log_file)
 
         assert len(entries) > 0
@@ -107,7 +108,7 @@ async def test_full_analysis_pipeline():
             mock_client.messages.create = AsyncMock(return_value=mock_response)
             mock_anthropic.return_value = mock_client
 
-            analyzer = AIAnalyzer()
+            analyzer = LogAnalyzer()
             diagnosis = await analyzer.analyze(
                 metrics=metrics,
                 logs=entries[:10],
@@ -203,7 +204,7 @@ async def test_fix_generation_and_pr_workflow(integration_db):
         mock_anthropic.return_value = mock_client
 
         # Generate fix
-        fix_generator = FixGenerator()
+        fix_generator = AutoFixer()
         fix_proposal = await fix_generator.generate_fix(diagnosis)
 
         assert "fixes" in fix_proposal
@@ -320,7 +321,7 @@ async def test_end_to_end_with_database_persistence(integration_db):
         mock_client.messages.create = AsyncMock(return_value=mock_response)
         mock_anthropic.return_value = mock_client
 
-        analyzer = AIAnalyzer()
+        analyzer = LogAnalyzer()
         diagnosis = await analyzer.analyze(
             metrics=metrics,
             logs=[],

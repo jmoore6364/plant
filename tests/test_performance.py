@@ -7,7 +7,7 @@ Measures performance of critical components and identifies bottlenecks.
 import pytest
 import asyncio
 import time
-from typing import List, Callable
+from typing import List, Callable, Dict
 import statistics
 from datetime import datetime
 import cProfile
@@ -20,9 +20,9 @@ from tests.mock_data import (
     MockAlertGenerator,
     generate_mock_dataset
 )
-from src.core.log_parser import LogParser
-from src.core.metrics_collector import MetricsCollector
-from src.core.anomaly_detector import AnomalyDetector
+from src.collectors.log_collector import LogCollector
+from src.collectors.metrics_collector import MetricsCollector
+from src.analyzers.anomaly_detector import AnomalyDetector
 
 
 class PerformanceTimer:
@@ -126,7 +126,7 @@ class TestLogParsingPerformance:
 
     def test_parse_small_file(self, sample_log_file, benchmark):
         """Benchmark parsing a small log file (10k lines)."""
-        parser = LogParser()
+        parser = LogCollector()
 
         def parse():
             return parser.parse_file(sample_log_file, max_lines=1000)
@@ -140,7 +140,7 @@ class TestLogParsingPerformance:
         generator = MockLogGenerator(seed=42)
         generator.generate_log_file(str(log_file), count=100000)
 
-        parser = LogParser()
+        parser = LogCollector()
 
         def parse():
             return parser.parse_file(str(log_file), max_lines=10000)
@@ -150,7 +150,7 @@ class TestLogParsingPerformance:
 
     def test_filter_performance(self, sample_log_file, benchmark):
         """Benchmark log filtering performance."""
-        parser = LogParser()
+        parser = LogCollector()
         entries = parser.parse_file(sample_log_file)
 
         def filter_errors():
@@ -338,7 +338,7 @@ class TestEndToEndPerformance:
 
         with PerformanceTimer("Full Analysis Pipeline") as timer:
             # Parse logs
-            parser = LogParser()
+            parser = LogCollector()
             entries = parser.parse_file(str(log_file))
 
             # Collect metrics
