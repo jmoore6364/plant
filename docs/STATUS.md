@@ -10,12 +10,12 @@
 ✓ FastAPI app loads with 47 routes
 ✓ Python 3.11.14 compatible
 ✓ Core tests: 26/26 passing (100%)
-✓ Overall tests: 27/34 passing (79.4%)
+✓ Overall tests: 29/34 passing (85.3%)
 ```
 
 ## Test Results
 
-### Overall: 27/34 tests passing (79.4%) ✅
+### Overall: 29/34 tests passing (85.3%) ✅
 
 ### Core Functionality Tests: 26/26 ✅ (100%)
 
@@ -50,16 +50,16 @@
 - ✅ Trend analysis
 - ✅ Database stats
 
-### Integration Tests: 1/8 🚧 (12.5%)
+### Integration Tests: 3/8 🚧 (37.5%)
 
 - ✅ Notification workflow (complete end-to-end)
+- ✅ Alert deduplication (fingerprint generation working)
+- ✅ Error recovery workflow (status tracking working)
 - 🚧 Full analysis pipeline (needs LogAnalyzer integration)
 - 🚧 Fix generation and PR workflow (needs AutoFixer methods)
 - 🚧 Metrics collection and storage (needs implementation)
 - 🚧 End-to-end database persistence
-- 🚧 Alert deduplication workflow
-- 🚧 Concurrent analysis runs
-- 🚧 Error recovery workflow
+- 🚧 Concurrent analysis runs (SQLAlchemy session limitation)
 
 Performance tests are implemented but skipped for now (serve as benchmarking suite).
 
@@ -148,6 +148,14 @@ Performance tests are implemented but skipped for now (serve as benchmarking sui
 - Rate limiting
 - WebSocket support
 
+**Web Dashboard** (`src/ui/`)
+- React 18 + TypeScript
+- Real-time metrics visualization
+- Log analysis interface
+- Fix/PR tracking
+- Responsive Tailwind UI
+- Auto-refreshing data (5-10s intervals)
+
 ### 🚧 Partial / Needs Work
 
 **Database Repositories** (`src/database/repository.py`)
@@ -189,6 +197,18 @@ pytest tests/ -v
 ```bash
 uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
+
+### Start Web Dashboard
+```bash
+cd src/ui
+npm install
+npm run dev
+```
+
+Then open:
+- **Frontend Dashboard**: http://localhost:5173
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
 
 ### Start Full Stack (Docker)
 ```bash
@@ -250,8 +270,12 @@ docker-compose up -d
 - ✅ Fixed PRHistory relationship (was referencing itself instead of FixHistory)
 - ✅ Added auto-generated Alert IDs with uuid
 - ✅ Added get_by_alert_id alias method to AlertRepository
+- ✅ Auto-generate Alert fingerprints for deduplication (MD5 hash)
+- ✅ Added AnalysisRun fields: run_id, trigger, status
+- ✅ Added repository methods: get_by_run_id(), complete()
+- ✅ Bidirectional sync between request_id and run_id
 - ✅ All core tests now passing (26/26)
-- ✅ First integration test passing (notification workflow)
+- ✅ Integration tests: 3/8 passing (37.5%)
 
 ## Next Steps
 

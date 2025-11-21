@@ -21,6 +21,7 @@ Essential guides for using the system.
 | Document | Description |
 |----------|-------------|
 | [API Reference](API.md) | Complete REST API documentation |
+| [Web Dashboard UI](UI.md) | React dashboard setup and usage |
 | [Configuration Guide](CONFIGURATION.md) | Configuration options and secrets management |
 | [Security Guide](SECURITY.md) | Authentication, authorization, and security |
 | [Deployment Guide](DEPLOYMENT.md) | Deploy to Docker, Kubernetes, or AWS |
