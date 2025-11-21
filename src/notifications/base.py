@@ -5,6 +5,7 @@ from typing import Dict, Any, Optional, List
 from enum import Enum
 from datetime import datetime
 from pydantic import BaseModel, Field
+import uuid
 
 
 class NotificationPriority(str, Enum):
@@ -28,7 +29,7 @@ class NotificationStatus(str, Enum):
 class Alert(BaseModel):
     """Alert to be sent via notifications."""
 
-    id: str
+    id: str = Field(default_factory=lambda: f"alert_{uuid.uuid4().hex[:16]}")
     title: str
     message: str
     priority: NotificationPriority

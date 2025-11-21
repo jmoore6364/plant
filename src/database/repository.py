@@ -169,6 +169,10 @@ class AlertRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_alert_id(self, alert_id: str) -> Optional[AlertHistory]:
+        """Get alert by alert_id (alias for get_by_id)."""
+        return await self.get_by_id(alert_id)
+
     async def get_recent(
         self, limit: int = 100, hours: int = 24, priority: Optional[str] = None
     ) -> List[AlertHistory]:
