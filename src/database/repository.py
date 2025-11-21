@@ -130,6 +130,52 @@ class MetricsRepository:
         await self.session.flush()
         return snapshot
 
+    async def create_snapshot(self, metrics_data: Dict[str, Any]) -> MetricsSnapshot:
+        """
+        Create a new metrics snapshot with field name normalization.
+
+        Handles field name variations and conversions for backwards compatibility.
+        """
+        # Normalize field names and convert units
+        normalized_data = {}
+
+        # CPU fields
+        if "cpu_percent" in metrics_data:
+            normalized_data["cpu_percent"] = metrics_data["cpu_percent"]
+        # cpu_count is not stored (just metadata)
+
+        # Memory fields
+        if "memory_percent" in metrics_data:
+            normalized_data["memory_percent"] = metrics_data["memory_percent"]
+        if "memory_available_gb" in metrics_data:
+            # Convert GB to MB
+            normalized_data["memory_available_mb"] = metrics_data["memory_available_gb"] * 1024
+        elif "memory_available_mb" in metrics_data:
+            normalized_data["memory_available_mb"] = metrics_data["memory_available_mb"]
+
+        # Disk fields
+        if "disk_percent" in metrics_data:
+            normalized_data["disk_usage_percent"] = metrics_data["disk_percent"]
+        elif "disk_usage_percent" in metrics_data:
+            normalized_data["disk_usage_percent"] = metrics_data["disk_usage_percent"]
+        if "disk_free_gb" in metrics_data:
+            normalized_data["disk_free_gb"] = metrics_data["disk_free_gb"]
+
+        # Network fields
+        if "network_bytes_sent" in metrics_data:
+            normalized_data["network_bytes_sent"] = metrics_data["network_bytes_sent"]
+        if "network_bytes_recv" in metrics_data:
+            normalized_data["network_bytes_recv"] = metrics_data["network_bytes_recv"]
+
+        # Process count - default to 0 if not provided
+        normalized_data["process_count"] = metrics_data.get("process_count", 0)
+
+        # Load average if provided
+        if "load_average" in metrics_data:
+            normalized_data["load_average"] = metrics_data["load_average"]
+
+        return await self.create(normalized_data)
+
     async def get_recent(self, limit: int = 1000, hours: int = 24) -> List[MetricsSnapshot]:
         """Get recent metrics snapshots."""
         cutoff = datetime.utcnow() - timedelta(hours=hours)

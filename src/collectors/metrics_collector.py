@@ -2,8 +2,9 @@
 
 import psutil
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import time
+import asyncio
 
 from src.models.schemas import SystemMetrics
 
@@ -259,6 +260,53 @@ class MetricsCollector:
                 "change": disk_trend,
                 "direction": "increasing" if disk_trend > 1 else "decreasing" if disk_trend < -1 else "stable",
             },
+        }
+
+    async def collect_all(self) -> Dict[str, Any]:
+        """
+        Collect all system metrics in a structured format.
+
+        This is an async version that returns a comprehensive dictionary
+        of all system metrics, suitable for storage and analysis.
+
+        Returns:
+            Dictionary with structured metrics data
+        """
+        # Run psutil operations in executor to avoid blocking
+        loop = asyncio.get_event_loop()
+
+        # Collect all metrics
+        cpu_percent = await loop.run_in_executor(None, lambda: psutil.cpu_percent(interval=0.1))
+        cpu_count = psutil.cpu_count()
+
+        memory = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+        network = psutil.net_io_counters()
+
+        return {
+            "cpu": {
+                "percent": cpu_percent,
+                "count": cpu_count,
+            },
+            "memory": {
+                "percent": memory.percent,
+                "available": memory.available,
+                "total": memory.total,
+                "used": memory.used,
+            },
+            "disk": {
+                "percent": disk.percent,
+                "free": disk.free,
+                "total": disk.total,
+                "used": disk.used,
+            },
+            "network": {
+                "bytes_sent": network.bytes_sent,
+                "bytes_recv": network.bytes_recv,
+                "packets_sent": network.packets_sent,
+                "packets_recv": network.packets_recv,
+            },
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def clear_history(self) -> None:

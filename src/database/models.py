@@ -80,6 +80,11 @@ class MetricsSnapshot(Base):
         Index('idx_metrics_anomalies', 'cpu_anomaly', 'memory_anomaly', 'disk_anomaly'),
     )
 
+    @property
+    def disk_percent(self):
+        """Alias for disk_usage_percent for backwards compatibility."""
+        return self.disk_usage_percent
+
 
 class AlertHistory(Base):
     """Historical record of all alerts sent."""
