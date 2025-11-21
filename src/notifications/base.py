@@ -4,8 +4,9 @@ from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 from enum import Enum
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 import uuid
+import hashlib
 
 
 class NotificationPriority(str, Enum):
@@ -41,6 +42,20 @@ class Alert(BaseModel):
     # Grouping and deduplication
     fingerprint: Optional[str] = None  # For deduplication
     group_key: Optional[str] = None    # For grouping similar alerts
+
+    @model_validator(mode='after')
+    def generate_fingerprint(self):
+        """Auto-generate fingerprint for deduplication if not provided."""
+        if self.fingerprint is None:
+            # Create fingerprint from title + source for deduplication
+            fingerprint_data = f"{self.title}:{self.source}"
+            self.fingerprint = hashlib.md5(fingerprint_data.encode()).hexdigest()[:16]
+
+        if self.group_key is None:
+            # Create group key from title for grouping similar alerts
+            self.group_key = hashlib.md5(self.title.encode()).hexdigest()[:12]
+
+        return self
 
 
 class NotificationResult(BaseModel):

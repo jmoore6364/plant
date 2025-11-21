@@ -15,8 +15,13 @@ class AnalysisRun(Base):
     __tablename__ = "analysis_runs"
 
     id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(String(100), unique=True, index=True, nullable=False)
+    request_id = Column(String(100), unique=True, index=True)
+    run_id = Column(String(100), unique=True, index=True, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+
+    # Run metadata
+    trigger = Column(String(50))  # manual, scheduled, alert, etc.
+    status = Column(String(20), default="pending")  # pending, running, completed, failed
 
     # Analysis parameters
     log_file_path = Column(String(500))

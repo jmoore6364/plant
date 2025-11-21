@@ -26,6 +26,10 @@ class AnalysisRepository:
 
     async def create(self, analysis_data: Dict[str, Any]) -> AnalysisRun:
         """Create a new analysis run record."""
+        # Auto-set request_id from run_id if not provided (backwards compatibility)
+        if "request_id" not in analysis_data and "run_id" in analysis_data:
+            analysis_data["request_id"] = analysis_data["run_id"]
+
         analysis = AnalysisRun(**analysis_data)
         self.session.add(analysis)
         await self.session.flush()
@@ -44,6 +48,35 @@ class AnalysisRepository:
             select(AnalysisRun).where(AnalysisRun.request_id == request_id)
         )
         return result.scalar_one_or_none()
+
+    async def get_by_run_id(self, run_id: str) -> Optional[AnalysisRun]:
+        """Get analysis run by run ID."""
+        result = await self.session.execute(
+            select(AnalysisRun).where(AnalysisRun.run_id == run_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def complete(
+        self,
+        run_id: str,
+        status: str = "completed",
+        error_message: Optional[str] = None,
+        **kwargs
+    ) -> Optional[AnalysisRun]:
+        """Mark an analysis run as complete with status and optional error message."""
+        analysis = await self.get_by_run_id(run_id)
+        if analysis:
+            analysis.status = status
+            if error_message:
+                analysis.error_message = error_message
+
+            # Update any additional fields passed
+            for key, value in kwargs.items():
+                if hasattr(analysis, key):
+                    setattr(analysis, key, value)
+
+            await self.session.flush()
+        return analysis
 
     async def get_recent(self, limit: int = 100, hours: int = 24) -> List[AnalysisRun]:
         """Get recent analysis runs."""
