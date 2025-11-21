@@ -26,8 +26,10 @@ class AnalysisRepository:
 
     async def create(self, analysis_data: Dict[str, Any]) -> AnalysisRun:
         """Create a new analysis run record."""
-        # Auto-set request_id from run_id if not provided (backwards compatibility)
-        if "request_id" not in analysis_data and "run_id" in analysis_data:
+        # Auto-sync request_id and run_id for backwards compatibility
+        if "request_id" in analysis_data and "run_id" not in analysis_data:
+            analysis_data["run_id"] = analysis_data["request_id"]
+        elif "run_id" in analysis_data and "request_id" not in analysis_data:
             analysis_data["request_id"] = analysis_data["run_id"]
 
         analysis = AnalysisRun(**analysis_data)
