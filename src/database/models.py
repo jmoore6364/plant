@@ -18,6 +18,7 @@ class AnalysisRun(Base):
     request_id = Column(String(100), unique=True, index=True)
     run_id = Column(String(100), unique=True, index=True, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    completed_at = Column(DateTime)  # When the analysis completed
 
     # Run metadata
     trigger = Column(String(50))  # manual, scheduled, alert, etc.
@@ -38,6 +39,9 @@ class AnalysisRun(Base):
     success = Column(Boolean, default=True)
     error_message = Column(Text)
 
+    # Analysis results
+    findings = Column(JSON)  # Stores detailed analysis findings
+
     # Relationships
     alerts = relationship("AlertHistory", back_populates="analysis_run", cascade="all, delete-orphan")
     diagnoses = relationship("DiagnosisHistory", back_populates="analysis_run", cascade="all, delete-orphan")
@@ -47,6 +51,13 @@ class AnalysisRun(Base):
         Index('idx_analysis_timestamp', 'timestamp'),
         Index('idx_analysis_success', 'success'),
     )
+
+    @property
+    def duration_seconds(self) -> Optional[float]:
+        """Calculate duration of analysis run in seconds."""
+        if self.completed_at and self.timestamp:
+            return (self.completed_at - self.timestamp).total_seconds()
+        return None
 
 
 class MetricsSnapshot(Base):

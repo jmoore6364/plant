@@ -10,12 +10,12 @@
 ✓ FastAPI app loads with 47 routes
 ✓ Python 3.11.14 compatible
 ✓ Core tests: 26/26 passing (100%)
-✓ Overall tests: 29/34 passing (85.3%)
+✓ Overall tests: 30/34 passing (88.2%)
 ```
 
 ## Test Results
 
-### Overall: 29/34 tests passing (85.3%) ✅
+### Overall: 30/34 tests passing (88.2%) ✅
 
 ### Core Functionality Tests: 26/26 ✅ (100%)
 
@@ -50,14 +50,14 @@
 - ✅ Trend analysis
 - ✅ Database stats
 
-### Integration Tests: 3/8 🚧 (37.5%)
+### Integration Tests: 4/8 🚧 (50%)
 
 - ✅ Notification workflow (complete end-to-end)
 - ✅ Alert deduplication (fingerprint generation working)
 - ✅ Error recovery workflow (status tracking working)
+- ✅ Metrics collection and storage (async collection working)
 - 🚧 Full analysis pipeline (needs LogAnalyzer integration)
 - 🚧 Fix generation and PR workflow (needs AutoFixer methods)
-- 🚧 Metrics collection and storage (needs implementation)
 - 🚧 End-to-end database persistence
 - 🚧 Concurrent analysis runs (SQLAlchemy session limitation)
 

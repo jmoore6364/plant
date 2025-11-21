@@ -69,6 +69,8 @@ class AnalysisRepository:
         analysis = await self.get_by_run_id(run_id)
         if analysis:
             analysis.status = status
+            analysis.completed_at = datetime.utcnow()  # Auto-set completion time
+
             if error_message:
                 analysis.error_message = error_message
 
@@ -161,11 +163,9 @@ class MetricsRepository:
         if "disk_free_gb" in metrics_data:
             normalized_data["disk_free_gb"] = metrics_data["disk_free_gb"]
 
-        # Network fields
-        if "network_bytes_sent" in metrics_data:
-            normalized_data["network_bytes_sent"] = metrics_data["network_bytes_sent"]
-        if "network_bytes_recv" in metrics_data:
-            normalized_data["network_bytes_recv"] = metrics_data["network_bytes_recv"]
+        # Network fields - default to 0 if not provided (nullable=False in schema)
+        normalized_data["network_bytes_sent"] = metrics_data.get("network_bytes_sent", 0)
+        normalized_data["network_bytes_recv"] = metrics_data.get("network_bytes_recv", 0)
 
         # Process count - default to 0 if not provided
         normalized_data["process_count"] = metrics_data.get("process_count", 0)

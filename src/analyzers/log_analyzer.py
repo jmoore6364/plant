@@ -1,6 +1,6 @@
 """Log analysis and pattern detection."""
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta
 import re
@@ -23,28 +23,51 @@ class LogAnalyzer:
             "database_error": re.compile(r"database.*error|sql.*error|deadlock", re.IGNORECASE),
         }
 
-    def analyze(self, logs: List[LogEntry]) -> Dict:
+    async def analyze(
+        self,
+        logs: Optional[List[LogEntry]] = None,
+        metrics: Optional[Dict[str, Any]] = None,
+        anomalies: Optional[Dict[str, Any]] = None
+    ) -> Dict:
         """
-        Perform comprehensive log analysis.
+        Perform comprehensive log analysis with optional metrics and anomalies.
 
         Args:
-            logs: List of log entries to analyze
+            logs: List of log entries to analyze (optional)
+            metrics: System metrics data (optional)
+            anomalies: Detected anomalies (optional)
 
         Returns:
             Dictionary with analysis results
         """
-        if not logs:
-            return {"status": "no_logs", "total": 0}
+        if logs is None:
+            logs = []
 
-        return {
-            "total_logs": len(logs),
-            "time_range": self._get_time_range(logs),
-            "level_distribution": self._get_level_distribution(logs),
-            "error_patterns": self._find_error_patterns(logs),
-            "anomalies": self._detect_anomalies(logs),
-            "top_sources": self._get_top_sources(logs),
-            "error_timeline": self._create_error_timeline(logs),
-        }
+        result = {}
+
+        # Analyze logs if provided
+        if logs:
+            result.update({
+                "total_logs": len(logs),
+                "time_range": self._get_time_range(logs),
+                "level_distribution": self._get_level_distribution(logs),
+                "error_patterns": self._find_error_patterns(logs),
+                "anomalies": self._detect_anomalies(logs),
+                "top_sources": self._get_top_sources(logs),
+                "error_timeline": self._create_error_timeline(logs),
+            })
+        else:
+            result["total_logs"] = 0
+
+        # Include metrics if provided
+        if metrics:
+            result["metrics_summary"] = metrics
+
+        # Include anomalies if provided
+        if anomalies:
+            result["detected_anomalies"] = anomalies
+
+        return result
 
     def _get_time_range(self, logs: List[LogEntry]) -> Dict:
         """Get time range of logs."""
