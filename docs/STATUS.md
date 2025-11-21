@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2025-11-20
+**Last Updated:** 2025-11-21
 
 ## Build Status: ✅ PASSING
 
@@ -9,15 +9,15 @@
 ✓ All modules import correctly
 ✓ FastAPI app loads with 47 routes
 ✓ Python 3.11.14 compatible
-✓ Core tests: 26/26 passing (100%)
-✓ Overall tests: 30/34 passing (88.2%)
+✓ Core tests: 40/40 passing (100%)
+✓ Overall tests: 51/60 passing (85%)
 ```
 
 ## Test Results
 
-### Overall: 30/34 tests passing (88.2%) ✅
+### Overall: 51/60 tests passing (85%) ✅
 
-### Core Functionality Tests: 26/26 ✅ (100%)
+### Core Functionality Tests: 40/40 ✅ (100%)
 
 **Log Collection (5/5 passing)**
 - ✅ Custom log format parsing
@@ -50,7 +50,22 @@
 - ✅ Trend analysis
 - ✅ Database stats
 
-### Integration Tests: 4/8 🚧 (50%)
+**Help System (14/14 passing)**
+- ✅ Create and manage help articles
+- ✅ Get articles by ID and slug
+- ✅ Get all articles with filtering
+- ✅ Get articles by category
+- ✅ Get featured articles
+- ✅ Search articles (title, summary, content, category)
+- ✅ Get unique categories
+- ✅ Increment view count
+- ✅ Mark articles as helpful/not helpful
+- ✅ Update articles
+- ✅ Delete articles
+- ✅ Published/unpublished filtering
+- ✅ Article ordering
+
+### Integration Tests: 5/8 🚧 (62.5%)
 
 - ✅ Notification workflow (complete end-to-end)
 - ✅ Alert deduplication (fingerprint generation working)
@@ -153,8 +168,18 @@ Performance tests are implemented but skipped for now (serve as benchmarking sui
 - Real-time metrics visualization
 - Log analysis interface
 - Fix/PR tracking
+- Help system with search and categories
 - Responsive Tailwind UI
 - Auto-refreshing data (5-10s intervals)
+
+**Help System** (`src/database/models.py`, `src/api/help_routes.py`, `src/ui/src/pages/Help.tsx`)
+- Database-backed help articles
+- Full-text search (title, summary, content, category)
+- Category filtering and browsing
+- Featured articles
+- View tracking and feedback (helpful/not helpful)
+- Markdown content support
+- 10 comprehensive help articles covering all features
 
 ### 🚧 Partial / Needs Work
 
@@ -261,7 +286,21 @@ docker-compose up -d
 
 ## Recent Fixes
 
-**2025-11-20 (Latest Session)**
+**2025-11-21 (Latest Session)**
+- ✅ Created complete help system (database, API, UI)
+- ✅ Added HelpArticle database model with full-text search
+- ✅ Created HelpArticleRepository with 15+ methods
+- ✅ Added 8 help API endpoints (CRUD, search, categories)
+- ✅ Built React Help UI with search, categories, article viewing
+- ✅ Integrated Help page into app navigation
+- ✅ Seeded database with 10 comprehensive help articles
+- ✅ Added 14 comprehensive help system tests
+- ✅ Added get_by_category() convenience method
+- ✅ Enhanced search to include category field
+- ✅ All help system tests passing (14/14)
+- ✅ Test count improved: 31 → 51 passing tests
+
+**2025-11-20 (Previous Session)**
 - ✅ Fixed dependency conflicts (psutil, locust, safety)
 - ✅ Migrated to Pydantic v2 validators (@root_validator → @model_validator)
 - ✅ Fixed SQLAlchemy reserved name conflict (metadata → extra_metadata)
@@ -274,8 +313,6 @@ docker-compose up -d
 - ✅ Added AnalysisRun fields: run_id, trigger, status
 - ✅ Added repository methods: get_by_run_id(), complete()
 - ✅ Bidirectional sync between request_id and run_id
-- ✅ All core tests now passing (26/26)
-- ✅ Integration tests: 3/8 passing (37.5%)
 
 ## Next Steps
 

@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Logs from './pages/Logs';
 import Metrics from './pages/Metrics';
 import Fixes from './pages/Fixes';
+import Help from './pages/Help';
 import { Activity } from 'lucide-react';
 
 const queryClient = new QueryClient();
@@ -49,6 +50,12 @@ function App() {
                     >
                       Fixes & PRs
                     </Link>
+                    <Link
+                      to="/help"
+                      className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-blue-600"
+                    >
+                      Help
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -61,6 +68,7 @@ function App() {
               <Route path="/logs" element={<Logs />} />
               <Route path="/metrics" element={<Metrics />} />
               <Route path="/fixes" element={<Fixes />} />
+              <Route path="/help" element={<Help />} />
             </Routes>
           </main>
         </div>

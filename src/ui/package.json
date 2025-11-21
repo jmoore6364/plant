@@ -10,7 +10,8 @@
     "recharts": "^2.10.3",
     "@tanstack/react-query": "^5.12.2",
     "tailwindcss": "^3.3.6",
-    "lucide-react": "^0.294.0"
+    "lucide-react": "^0.294.0",
+    "react-markdown": "^9.0.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

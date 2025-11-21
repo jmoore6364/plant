@@ -557,6 +557,10 @@ class HelpArticleRepository:
         result = await self.session.execute(query)
         return list(result.scalars().all())
 
+    async def get_by_category(self, category: str, limit: int = 100) -> List[HelpArticle]:
+        """Get articles by category (convenience method)."""
+        return await self.get_all(category=category, published_only=True, limit=limit)
+
     async def get_featured(self, limit: int = 5) -> List[HelpArticle]:
         """Get featured articles."""
         result = await self.session.execute(
@@ -568,7 +572,7 @@ class HelpArticleRepository:
         return list(result.scalars().all())
 
     async def search(self, query: str, limit: int = 20) -> List[HelpArticle]:
-        """Search articles by title, summary, or content."""
+        """Search articles by title, summary, content, or category."""
         search_pattern = f"%{query}%"
         result = await self.session.execute(
             select(HelpArticle)
@@ -579,6 +583,7 @@ class HelpArticleRepository:
                         HelpArticle.title.ilike(search_pattern),
                         HelpArticle.summary.ilike(search_pattern),
                         HelpArticle.content.ilike(search_pattern),
+                        HelpArticle.category.ilike(search_pattern),
                     )
                 )
             )
