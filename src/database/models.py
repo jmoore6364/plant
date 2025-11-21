@@ -358,3 +358,48 @@ class DataRetentionLog(Base):
         Index('idx_retention_timestamp', 'timestamp'),
         Index('idx_retention_operation', 'operation_type'),
     )
+
+
+class HelpArticle(Base):
+    """Help articles and documentation stored in database."""
+
+    __tablename__ = "help_articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Article metadata
+    title = Column(String(200), nullable=False, index=True)
+    slug = Column(String(200), unique=True, nullable=False, index=True)
+    category = Column(String(100), nullable=False, index=True)
+    tags = Column(JSON)  # List of tags for search
+
+    # Content
+    summary = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)  # Markdown content
+
+    # Display
+    icon = Column(String(50))  # Icon name (e.g., "activity", "settings")
+    order = Column(Integer, default=0)  # Display order within category
+    featured = Column(Boolean, default=False, index=True)  # Show on homepage
+
+    # Status
+    published = Column(Boolean, default=True, index=True)
+    author = Column(String(100))
+
+    # Usage tracking
+    view_count = Column(Integer, default=0)
+    helpful_count = Column(Integer, default=0)
+    not_helpful_count = Column(Integer, default=0)
+
+    # Related articles
+    related_article_ids = Column(JSON)  # List of related article IDs
+
+    __table_args__ = (
+        Index('idx_help_category', 'category'),
+        Index('idx_help_published', 'published'),
+        Index('idx_help_featured', 'featured'),
+        Index('idx_help_slug', 'slug'),
+    )
+

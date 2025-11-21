@@ -15,6 +15,7 @@ from src.database.models import (
     SystemHealthScore,
     IssueRecurrence,
     DataRetentionLog,
+    HelpArticle,
 )
 
 
@@ -507,3 +508,128 @@ class IssueRecurrenceRepository:
             .order_by(desc(IssueRecurrence.occurrence_count))
         )
         return list(result.scalars().all())
+
+
+class HelpArticleRepository:
+    """Repository for help article operations."""
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def create(self, article_data: Dict[str, Any]) -> HelpArticle:
+        """Create a new help article."""
+        article = HelpArticle(**article_data)
+        self.session.add(article)
+        await self.session.flush()
+        return article
+
+    async def get_by_id(self, article_id: int) -> Optional[HelpArticle]:
+        """Get article by ID."""
+        result = await self.session.execute(
+            select(HelpArticle).where(HelpArticle.id == article_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_by_slug(self, slug: str) -> Optional[HelpArticle]:
+        """Get article by slug."""
+        result = await self.session.execute(
+            select(HelpArticle).where(HelpArticle.slug == slug)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_all(
+        self,
+        category: Optional[str] = None,
+        published_only: bool = True,
+        limit: int = 100
+    ) -> List[HelpArticle]:
+        """Get all articles, optionally filtered by category."""
+        query = select(HelpArticle)
+
+        if published_only:
+            query = query.where(HelpArticle.published == True)
+
+        if category:
+            query = query.where(HelpArticle.category == category)
+
+        query = query.order_by(HelpArticle.order, HelpArticle.title).limit(limit)
+
+        result = await self.session.execute(query)
+        return list(result.scalars().all())
+
+    async def get_featured(self, limit: int = 5) -> List[HelpArticle]:
+        """Get featured articles."""
+        result = await self.session.execute(
+            select(HelpArticle)
+            .where(and_(HelpArticle.published == True, HelpArticle.featured == True))
+            .order_by(HelpArticle.order)
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def search(self, query: str, limit: int = 20) -> List[HelpArticle]:
+        """Search articles by title, summary, or content."""
+        search_pattern = f"%{query}%"
+        result = await self.session.execute(
+            select(HelpArticle)
+            .where(
+                and_(
+                    HelpArticle.published == True,
+                    or_(
+                        HelpArticle.title.ilike(search_pattern),
+                        HelpArticle.summary.ilike(search_pattern),
+                        HelpArticle.content.ilike(search_pattern),
+                    )
+                )
+            )
+            .order_by(desc(HelpArticle.view_count))
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def get_categories(self) -> List[str]:
+        """Get all unique categories."""
+        result = await self.session.execute(
+            select(HelpArticle.category)
+            .where(HelpArticle.published == True)
+            .distinct()
+            .order_by(HelpArticle.category)
+        )
+        return [row[0] for row in result.all()]
+
+    async def increment_view_count(self, article_id: int) -> None:
+        """Increment view count for an article."""
+        article = await self.get_by_id(article_id)
+        if article:
+            article.view_count += 1
+            await self.session.flush()
+
+    async def mark_helpful(self, article_id: int, helpful: bool = True) -> None:
+        """Mark article as helpful or not helpful."""
+        article = await self.get_by_id(article_id)
+        if article:
+            if helpful:
+                article.helpful_count += 1
+            else:
+                article.not_helpful_count += 1
+            await self.session.flush()
+
+    async def update(self, article_id: int, update_data: Dict[str, Any]) -> Optional[HelpArticle]:
+        """Update an existing article."""
+        article = await self.get_by_id(article_id)
+        if article:
+            for key, value in update_data.items():
+                if hasattr(article, key):
+                    setattr(article, key, value)
+            article.updated_at = datetime.utcnow()
+            await self.session.flush()
+        return article
+
+    async def delete(self, article_id: int) -> bool:
+        """Delete an article."""
+        article = await self.get_by_id(article_id)
+        if article:
+            await self.session.delete(article)
+            await self.session.flush()
+            return True
+        return False

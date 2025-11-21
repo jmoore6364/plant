@@ -24,6 +24,7 @@ from src.github_integration.pr_creator import PRCreator
 from src.notifications.setup import get_notification_manager
 from src.notifications.base import Alert, NotificationPriority
 from src.api.database_routes import router as database_router
+from src.api.help_routes import router as help_router
 from src.database.connection import init_db
 
 
@@ -33,8 +34,9 @@ app = FastAPI(
     version="0.2.0",
 )
 
-# Include database routes
+# Include routers
 app.include_router(database_router)
+app.include_router(help_router)
 
 # CORS middleware
 app.add_middleware(
