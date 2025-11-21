@@ -9,12 +9,15 @@
 ✓ All modules import correctly
 ✓ FastAPI app loads with 47 routes
 ✓ Python 3.11.14 compatible
-✓ Core tests passing: 15/15 (100%)
+✓ Core tests: 26/26 passing (100%)
+✓ Overall tests: 27/34 passing (79.4%)
 ```
 
 ## Test Results
 
-### Core Functionality Tests: 15/15 ✅
+### Overall: 27/34 tests passing (79.4%) ✅
+
+### Core Functionality Tests: 26/26 ✅ (100%)
 
 **Log Collection (5/5 passing)**
 - ✅ Custom log format parsing
@@ -35,14 +38,30 @@
 - ✅ Channel management
 - ✅ Alert grouping
 
-### Integration Tests: 1/20 🚧
+**Database Operations (11/11 passing)**
+- ✅ Create analysis run
+- ✅ Get recent analyses
+- ✅ Metrics snapshot and averages
+- ✅ Alert creation and resolution
+- ✅ Alert statistics
+- ✅ Issue recurrence tracking
+- ✅ System health score tracking
+- ✅ Data retention cleanup
+- ✅ Trend analysis
+- ✅ Database stats
 
-Integration and performance tests are implemented but test features that need completion:
-- Database repository methods need implementation
-- AI analysis workflow needs to match test expectations
-- Some model relationships need fixing
+### Integration Tests: 1/8 🚧 (12.5%)
 
-These tests serve as a roadmap for remaining work.
+- ✅ Notification workflow (complete end-to-end)
+- 🚧 Full analysis pipeline (needs LogAnalyzer integration)
+- 🚧 Fix generation and PR workflow (needs AutoFixer methods)
+- 🚧 Metrics collection and storage (needs implementation)
+- 🚧 End-to-end database persistence
+- 🚧 Alert deduplication workflow
+- 🚧 Concurrent analysis runs
+- 🚧 Error recovery workflow
+
+Performance tests are implemented but skipped for now (serve as benchmarking suite).
 
 ## Components Status
 
@@ -222,13 +241,17 @@ docker-compose up -d
 
 ## Recent Fixes
 
-**2025-11-20**
+**2025-11-20 (Latest Session)**
 - ✅ Fixed dependency conflicts (psutil, locust, safety)
-- ✅ Migrated to Pydantic v2 validators
+- ✅ Migrated to Pydantic v2 validators (@root_validator → @model_validator)
 - ✅ Fixed SQLAlchemy reserved name conflict (metadata → extra_metadata)
-- ✅ Fixed LogCollector.parse_string to store entries
-- ✅ Updated test imports to match project structure
-- ✅ All core tests now passing (15/15)
+- ✅ Fixed LogCollector.parse_string to store entries in self.entries
+- ✅ Updated all test imports to match project structure
+- ✅ Fixed PRHistory relationship (was referencing itself instead of FixHistory)
+- ✅ Added auto-generated Alert IDs with uuid
+- ✅ Added get_by_alert_id alias method to AlertRepository
+- ✅ All core tests now passing (26/26)
+- ✅ First integration test passing (notification workflow)
 
 ## Next Steps
 
