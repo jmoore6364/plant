@@ -234,7 +234,7 @@ class PRHistory(Base):
     checks_failed = Column(Integer)
 
     # Relationships
-    fix = relationship("PRHistory", back_populates="prs")
+    fix = relationship("FixHistory", back_populates="prs")
 
     __table_args__ = (
         Index('idx_pr_timestamp', 'timestamp'),
